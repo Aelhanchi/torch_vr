@@ -12,13 +12,13 @@ class ReduceVar():
           arXiv:1407.0202 [cs.LG], 2014 (available at
           https://arxiv.org/abs/1407.0202).
 
-        - Mark Schmidt and Nicolas Le Roux and Francis Bach,SAGA: Minimizing
+        - Mark Schmidt and Nicolas Le Roux and Francis Bach,Minimizing
           Finite Sums with the Stochastic Average Gradient,
           arXiv:1309.2388 [math.OC], 2013 (available at
           https://arxiv.org/abs/1309.2388).
 
     Arguments:
-        params (iterable): the parameters of the model. (in the same order as layers)
+        params (iterable): the parameters of the model.
         N (int): number of data points
         layers (iterable): an iterable of nn.Module objects representing
             the layers of the neural network in order. Only Linear and
