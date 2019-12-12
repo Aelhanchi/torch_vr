@@ -2,7 +2,7 @@ import torch
 from .prev_grads import PrevGrads
 
 
-class ReduceVar():
+class ReduceVar:
     """Implements the SAGA and SAG variance reduction schemes.
 
     References::
@@ -76,7 +76,7 @@ class ReduceVar():
                 spg -= pg
         else:  # self.method == 'SAG'
             for p, spg, pg in zip(self.params, self.sum_prev_grads, prev_grads):
-                spg = spg - pg + p.grad
+                spg += (p.grad - pg)
                 p.grad = spg
 
         # updates the stored gradients
