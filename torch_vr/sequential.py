@@ -29,7 +29,7 @@ class Sequential(torch.nn.Module):
         self.outputs_grad = list()
 
     def hook(self, grad):
-        self.outputs_grad = [grad] + self.outputs_grad
+        self.outputs_grad = [grad.detach()] + self.outputs_grad
 
     def forward(self, input, cache=False):
         self.clear()
@@ -41,7 +41,7 @@ class Sequential(torch.nn.Module):
                 input.register_hook(self.hook)
             input = activation(input)
             if input.requires_grad and cache:
-                self.inputs.append(input)
+                self.inputs.append(input.detach())
         self.inputs.pop()
         return input
 

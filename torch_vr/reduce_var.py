@@ -69,15 +69,16 @@ class ReduceVar:
         """
         # replaces the SGD estimator with the SAGA/SAG estimator.
         prev_grads = self.prev_grads.batch_gradient(indices)
-        if self.method == 'SAGA':
-            for p, spg, pg in zip(self.params, self.sum_prev_grads, prev_grads):
-                spg += p.grad
-                p.grad = (self.N/len(indices)) * (p.grad - pg) + (spg - p.grad)
-                spg -= pg
-        else:  # self.method == 'SAG'
-            for p, spg, pg in zip(self.params, self.sum_prev_grads, prev_grads):
-                spg += (p.grad - pg)
-                p.grad = spg
+        with torch.no_grad():
+            if self.method == 'SAGA':
+                for p, spg, pg in zip(self.params, self.sum_prev_grads, prev_grads):
+                    spg += p.grad
+                    p.grad = (self.N/len(indices)) * (p.grad - pg) + (spg - p.grad)
+                    spg -= pg
+            else:  # self.method == 'SAG'
+                for p, spg, pg in zip(self.params, self.sum_prev_grads, prev_grads):
+                    spg += (p.grad - pg)
+                    p.grad = spg
 
         # updates the stored gradients
         self.prev_grads.update(dZ, A, indices)
