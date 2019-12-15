@@ -31,16 +31,16 @@ class Sequential(torch.nn.Module):
     def hook(self, grad):
         self.outputs_grad = [grad] + self.outputs_grad
 
-    def forward(self, input):
+    def forward(self, input, cache=False):
         self.clear()
 
         self.inputs.append(input)
         for (layer, activation) in zip(self.layers, self.activations):
             input = layer(input)
-            if input.requires_grad:
+            if input.requires_grad and cache:
                 input.register_hook(self.hook)
             input = activation(input)
-            if input.requires_grad:
+            if input.requires_grad and cache:
                 self.inputs.append(input)
         self.inputs.pop()
         return input

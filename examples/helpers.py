@@ -36,11 +36,11 @@ def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
 
             # computes the loss
             if stochastic:
-                # samples the mini-batch indices uniformly without replacement
                 indices = np.random.choice(inputs_train.shape[0], batch_size, replace=False)
-
-                # computes the loss
-                loss = loss_func(model(inputs_train[indices]), targets_train[indices])
+                if var_reduce in ['SAG', 'SAGA']:
+                    loss = loss_func(model(inputs_train[indices], cache=True), targets_train[indices])
+                else:
+                    loss = loss_func(model(inputs_train[indices]), targets_train[indices])
             else:
                 loss = loss_func(model(inputs_train), targets_train)
 
