@@ -23,8 +23,9 @@ def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
 
     # initializes a variance reducer if any requested
     if var_reduce in ['SAG', 'SAGA'] and stochastic:
-        var_reducer = torch_vr.ReduceVar(
-            model.parameters(), inputs_train.shape[0], model.layers, method=var_reduce)
+        with torch.no_grad():
+            var_reducer = torch_vr.ReduceVar(
+                model.parameters(), inputs_train.shape[0], model.layers, method=var_reduce)
 
     # initializes a list containing the accuracies
     accuracies_train = list()
@@ -48,11 +49,12 @@ def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
 
             # constructs the gradient estimate
             if stochastic:
-                if var_reduce not in ['SAG', 'SAGA']:
-                    for p in model.parameters():
-                        p.grad *= inputs_train.shape[0]/batch_size
-                else:
-                    var_reducer.reduce_variance(model.outputs_grad, model.inputs, indices)
+                with torch.no_grad():
+                    if var_reduce not in ['SAG', 'SAGA']:
+                        for p in model.parameters():
+                            p.grad *= inputs_train.shape[0]/batch_size
+                    else:
+                        var_reducer.reduce_variance(model.outputs_grad, model.inputs, indices)
 
             # takes an optimization step
             opt.step()

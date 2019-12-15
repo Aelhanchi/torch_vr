@@ -26,23 +26,25 @@ class Sequential(torch.nn.Module):
             self.add_module(str(idx), layer)
 
         self.inputs = list()
-        self.outputs = list()
         self.outputs_grad = list()
 
     def hook(self, grad):
         self.outputs_grad = [grad] + self.outputs_grad
 
     def forward(self, input):
-        self.inputs.clear()
-        self.outputs_grad.clear()
-        self.outputs.clear()
+        self.clear()
 
         self.inputs.append(input)
         for (layer, activation) in zip(self.layers, self.activations):
-            self.outputs.append(layer(self.inputs[-1]))
-            if self.outputs[-1].requires_grad:
-                self.outputs[-1].register_hook(self.hook)
-            self.inputs.append(activation(self.outputs[-1]))
+            input = layer(input)
+            if input.requires_grad:
+                input.register_hook(self.hook)
+            input = activation(input)
+            if input.requires_grad:
+                self.inputs.append(input)
+        self.inputs.pop()
+        return input
 
-        output = self.inputs.pop()
-        return output
+    def clear(self):
+        self.inputs.clear()
+        self.outputs_grad.clear()
