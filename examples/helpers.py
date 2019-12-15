@@ -9,7 +9,7 @@ import torch_sample
 
 def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
              loss_func, accuracy, start, step_size, epochs=100, accelerated=False,
-             momentum=0.9, stochastic=False, batch_size=128, var_reduce=None):
+             momentum=0.9, stochastic=False, batch_size=128, var_reduce=None, ranks=None):
 
     # loads the starting point
     model.load_state_dict(start)
@@ -26,7 +26,7 @@ def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
     # initializes a variance reducer if any requested
     if var_reduce in ['SAG', 'SAGA'] and stochastic:
         var_reducer = torch_vr.ReduceVar(
-            model.parameters(), inputs_train.shape[0], model.layers, method=var_reduce)
+            model.parameters(), inputs_train.shape[0], model.layers, method=var_reduce, ranks=ranks)
 
     # initializes a list containing the accuracies
     accuracies_train = list()
@@ -72,7 +72,7 @@ def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
 
 def sample(inputs_train, targets_train, inputs_test, targets_test, model,
            nlp_func, accuracy, start, step_size, epochs=100, accelerated=False,
-           momentum=0.9, stochastic=False, batch_size=128, var_reduce=None):
+           momentum=0.9, stochastic=False, batch_size=128, var_reduce=None, ranks=None):
 
     # loads the starting point
     model.load_state_dict(start)
@@ -91,7 +91,7 @@ def sample(inputs_train, targets_train, inputs_test, targets_test, model,
     # initializes a variance reducer if any requested
     if var_reduce in ['SAG', 'SAGA'] and stochastic:
         var_reducer = torch_vr.ReduceVar(
-            model.parameters(), inputs_train.shape[0], model.layers, method=var_reduce)
+            model.parameters(), inputs_train.shape[0], model.layers, method=var_reduce, ranks=ranks)
 
     # initializes a list containing the accuracies
     accuracies_train = list()
