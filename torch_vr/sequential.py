@@ -22,6 +22,9 @@ class Sequential(torch.nn.Module):
         self.layers = layers
         self.activations = activations
 
+        for idx, layer in enumerate(layers):
+            self.add_module(str(idx), layer)
+
         self.inputs = list()
         self.outputs = list()
         self.outputs_grad = list()
