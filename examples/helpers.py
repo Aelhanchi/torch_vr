@@ -30,8 +30,8 @@ def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
     accuracies_train = list()
     accuracies_test = list()
 
-    for i in tqdm(range(epochs)):
-        for j in range(int(N/batch_size)):
+    for _ in tqdm(range(epochs)):
+        for _ in range(int(inputs_train.shape[0]/batch_size)):
 
             # computes the loss
             if stochastic:
@@ -62,7 +62,7 @@ def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
 
         # records the accuracy every 100 iterations
         with torch.no_grad():
-            accuracies_test.append(accuracy(inputs_train, targets_test))
-            accuracies_train.append(accuracy(inputs_test, targets_test))
+            accuracies_test.append(accuracy(inputs_test, targets_test))
+            accuracies_train.append(accuracy(inputs_train, targets_train))
 
     return (accuracies_train, accuracies_test)
