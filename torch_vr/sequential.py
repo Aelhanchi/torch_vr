@@ -10,9 +10,9 @@ class Sequential(torch.nn.Module):
 
     Arguments:
         layers (list): a list of the layers of the neural network, in the order
-            of their applications.
+            of their application.
         activations (list): a list of the activation functions that should be
-            applied after each layers, in the order of their applications.
+            applied after each layer, in the order of their application.
     """
     def __init__(self, layers, activations):
         super().__init__()
