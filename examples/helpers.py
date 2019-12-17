@@ -25,6 +25,8 @@ def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
         var_reducer = torch_vr.ReduceVar(
             model.parameters(), inputs_train.shape[0], model.layers, method=var_reduce, ranks=ranks)
     # initializes a list containing the accuracies
+    losses_train = list()
+    losses_test = list()
     accuracies_train = list()
     accuracies_test = list()
     # optimizes
@@ -53,12 +55,16 @@ def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
             opt.step()
             # resets the gradients to 0
             opt.zero_grad()
-        # records the accuracy every epoch
+        # records the accuracy and loss at every epoch
         with torch.no_grad():
-            accuracies_test.append(accuracy(inputs_test, targets_test))
-            accuracies_train.append(accuracy(inputs_train, targets_train))
+            outputs_train = model(inputs_train)
+            accuracies_train.append(accuracy(outputs_train, targets_train))
+            losses_train.append(loss_func(outputs_train, targets_train))
+            outputs_test = model(inputs_test)
+            accuracies_test.append(accuracy(outputs_test, targets_test))
+            losses_test.append(loss_func(outputs_test, targets_test))
 
-    return (accuracies_train, accuracies_test)
+    return (accuracies_train, losses_train, accuracies_test, losses_test)
 
 def sample(inputs_train, targets_train, inputs_test, targets_test, model,
            nlp_func, accuracy, collect_samples, start, step_size, epochs=100, accelerated=False,
