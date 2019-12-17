@@ -57,9 +57,9 @@ def optimize(inputs_train, targets_train, inputs_test, targets_test, model,
         with torch.no_grad():
             outputs_train = model(inputs_train)
             accuracies_train.append(accuracy(outputs_train, targets_train))
-            losses_train.append(loss_func(outputs_train, targets_train))
+            losses_train.append(loss_func(outputs_train, targets_train)/inputs_train.shape[0])
             outputs_test = model(inputs_test)
             accuracies_test.append(accuracy(outputs_test, targets_test))
-            losses_test.append(loss_func(outputs_test, targets_test))
+            losses_test.append(loss_func(outputs_test, targets_test)/inputs_test.shape[0])
 
     return (accuracies_train, losses_train, accuracies_test, losses_test)
