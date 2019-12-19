@@ -33,16 +33,16 @@ class ReduceVar:
         method (string, optional): Either "SAGA" or "SAG".
     """
 
-    def __init__(self, params, N, layers, init_dZ=None, init_A=None, ranks=None, method='SAGA'):
+    def __init__(self, params, N, layers, init_outputs_grad=None, init_inputs=None, ranks=None, method='SAGA'):
         self.N = N
         if method not in ['SAGA', 'SAG']:
             raise ValueError('Supported methods are: "SAGA" and "SAG" ')
         self.method = method
         self.params = list(params)
-        self.prev_grads = PrevGrads(N, layers, init_dZ, init_A, ranks)
+        self.prev_grads = PrevGrads(N, layers, init_outputs_grad, init_inputs, ranks)
         self.sum_prev_grads = list()
         for p in self.params:
-            if init_dZ is None or init_A is None:
+            if init_outputs_grad is None or init_inputs is None:
                 self.sum_prev_grads.append(torch.zeros_like(p))
             else:
                 self.sum_prev_grads.append(p.grad)
@@ -58,7 +58,7 @@ class ReduceVar:
         """
         return torch.multinomial(torch.ones(self.N), batch_size, replacement=False)
 
-    def reduce_variance(self, dZ, A, indices):
+    def reduce_variance(self, outputs_grad, inputs, indices):
         """Reduces the variance of the gradient estimator
         and updates the stored gradients.
 
@@ -81,4 +81,4 @@ class ReduceVar:
                     p.grad = spg
 
         # updates the stored gradients
-        self.prev_grads.update(dZ, A, indices)
+        self.prev_grads.update(outputs_grad, inputs, indices)

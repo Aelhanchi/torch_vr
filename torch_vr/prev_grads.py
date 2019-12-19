@@ -20,29 +20,19 @@ class PrevGrads:
             gradients.
     """
 
-    def __init__(self, N, layers, init_dZ=None, init_A=None, ranks=None):
+    def __init__(self, N, layers, init_outputs_grad=None, init_inputs=None, ranks=None):
+        if init_outputs_grad is None or init_inputs is None:
+            init_outputs_grad = [None for i in range(len(layers))]
+            init_inputs = [None for i in range(len(layers))]
+        if ranks is None:
+            ranks = [None for i in range(len(layers))]
+
         self.layers = list()
         for (i, layer) in enumerate(list(layers)):
             if layer.__class__.__name__ == 'Linear':
-                if init_dZ is not None and init_A is not None:
-                    init_dz = init_dZ[i]
-                    init_a = init_A[i]
-                else:
-                    init_dz = None
-                    init_a = None
-                self.layers.append(PrevGradLinearLayer(N, layer, init_dz, init_a))
+                self.layers.append(PrevGradLinearLayer(N, layer, init_outputs_grad[i], init_inputs[i]))
             elif layer.__class__.__name__ == 'Conv2d':
-                if ranks is not None:
-                    rank = ranks[i]
-                else:
-                    rank = None
-                if init_dZ is not None and init_A is not None:
-                    init_dz = init_dZ[i]
-                    init_a = init_A[i]
-                else:
-                    init_dz = None
-                    init_a = None
-                self.layers.append(PrevGradConv2dLayer(N, layer, init_dz, init_a, rank))
+                self.layers.append(PrevGradConv2dLayer(N, layer, init_outputs_grad[i], init_inputs[i], ranks[i]))
             else:
                 raise ValueError('Only Linear and Conv2d layers are supported')
 
@@ -58,6 +48,6 @@ class PrevGrads:
             ind_grads += layer.individual_gradients(indices, weights)
         return ind_grads
 
-    def update(self, dZ, A, indices):
-        for (layer, dz, a) in zip(self.layers, dZ, A):
-            layer.update(dz, a, indices)
+    def update(self, outputs_grad, inputs, indices):
+        for (layer, output_grad, input) in zip(self.layers, outputs_grad, inputs):
+            layer.update(output_grad, input, indices)
