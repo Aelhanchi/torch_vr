@@ -23,6 +23,19 @@ class PrevGradLayer:
         """
         return NotImplementedError
 
+    def norm_gradients(self, indices):
+        """Computes the Euclidean norm of the previous
+        individual gradients corresponding to the passed indices.
+
+        Arguments:
+            indices (Tensor): indices tensor.
+
+        Returns:
+            Euclidean norm of the individual gradients corresponding to the
+            passed indices.
+        """
+        return NotImplementedError
+
     def individual_gradients(self, indices, weights):
         """Computes the weighted previous individual gradients corresponding to the
         passed indices.
@@ -57,8 +70,8 @@ class PrevGradLinearLayer(PrevGradLayer):
     Arguments:
         N (int): number of data points.
         layer (nn.Module.Linear): the linear layer.
-        init_dZ (Tensor, optional): initial gradient of output of layer.
-        init_A (Tensor, optional): initial input of layer.
+        init_output_grad (Tensor, optional): initial gradient of output of layer.
+        init_input (Tensor, optional): initial input of layer.
     """
 
     def __init__(self, N, layer, init_output_grad=None, init_input=None):
@@ -84,6 +97,13 @@ class PrevGradLinearLayer(PrevGradLayer):
             return [dW, db]
         else:
             return [dW, ]
+
+    def norm_gradients(self, indices):
+        norm_output_grad = self.output_grad[:, indices].pow(2).sum(dim=0)
+        norm_input = self.input[:, indices].pow(2).sum(dim=0)
+        if self.layer.bias is not None:
+            norm_bias = self.output_grad[:, indices].pow(2).sum(dim=0)
+        return torch.sqrt(norm_output_grad * norm_input + norm_bias)
 
     def individual_gradients(self, indices, weights=None):
         if weights is None:
