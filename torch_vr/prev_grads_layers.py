@@ -121,8 +121,8 @@ class PrevGradLinearLayer(PrevGradLayer):
             return [dW, ]
 
     def update(self, output_grad, input, indices):
-        self.output_grad[:, indices] = output_grad.t_()
-        self.input[:, indices] = input.t_()
+        self.output_grad[:, indices] = output_grad.t()
+        self.input[:, indices] = input.t()
 
 
 class PrevGradConv2dLayer(PrevGradLayer):
