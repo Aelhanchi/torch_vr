@@ -82,8 +82,8 @@ class PrevGradLinearLayer(PrevGradLayer):
         self.layer = layer
 
         if init_output_grad is not None and init_input is not None:
-            self.output_grad = init_output_grad.t_()
-            self.input = init_input.t_()
+            self.output_grad = init_output_grad.t()
+            self.input = init_input.t()
         else:
             self.output_grad = torch.zeros(self.layer.out_features, self.N)
             self.input = torch.zeros(self.layer.in_features, self.N)
@@ -103,7 +103,9 @@ class PrevGradLinearLayer(PrevGradLayer):
         norm_input = self.input[:, indices].pow(2).sum(dim=0)
         if self.layer.bias is not None:
             norm_bias = self.output_grad[:, indices].pow(2).sum(dim=0)
-        return torch.sqrt(norm_output_grad * norm_input + norm_bias)
+            return torch.sqrt(norm_output_grad * norm_input + norm_bias)
+        else:
+            return torch.sqrt(norm_output_grad * norm_input)
 
     def individual_gradients(self, indices, weights=None):
         if weights is None:
